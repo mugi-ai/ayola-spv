@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal IT - PT Nama Perusahaan Anda</title>
+    
+    <style>
+        :root { 
+            --primary: #1e3a8a; 
+            --secondary: #3b82f6; 
+            --bg: #f8fafc; 
+            --text: #1e293b; 
+            --card-bg: #ffffff; 
+            --border: #e2e8f0; 
+        }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 40px 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo-perusahaan {
+            width: 120px;
+            height: auto;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 32px;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+        .header p {
+            color: #64748b;
+            font-size: 16px;
+            margin-top: 0;
+        }
+        
+        /* DIUBAH: Agar 3 menu tampil responsif dan rapi */
+        .menu-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .menu-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            border-color: var(--secondary);
+        }
+        .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .menu-card h2 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+        }
+        .menu-card p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .footer {
+            margin-top: 50px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <img src="Ayola.png" alt="Logo Perusahaan" class="logo-perusahaan">
+        <h1>AYOLA HOTEL LIPPO CIKARANG</h1>
+        <p>Sistem Informasi Manajemen Layanan & Inventaris Departemen IT</p>
+    </div>
+
+    <div class="menu-container">
+        <!-- 1. Menu Tiket -->
+        <a href="tiket.html" class="menu-card">
+            <div class="icon">🎟️</div>
+            <h2>IT Helpdesk</h2>
+            <p>Kelola laporan masalah, permintaan layanan, dan tiket dukungan IT dari karyawan.</p>
+        </a>
+
+        <!-- 2. Menu Aset -->
+        <a href="aset.html" class="menu-card">
+            <div class="icon">💻</div>
+            <h2>Manajemen Aset</h2>
+            <p>Data inventaris perangkat keras, kelola peminjaman, dan pantau status perangkat IT.</p>
+        </a>
+
+        <!-- 3. Menu To-Do List (BARU) -->
+        <a href="todo.html" class="menu-card">
+            <div class="icon">📝</div>
+            <h2>To-Do List</h2>
+            <p>Catatan pribadi IT Supervisor untuk memantau tugas harian, jadwal maintenance, dan agenda.</p>
+        </a>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 IT Department - Internal System
+    </div>
+
+</body>
+</html>

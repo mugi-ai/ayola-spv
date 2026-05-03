@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard IT Support Ticketing</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f3f4f6;
+            --text: #1f2937;
+            --card-bg: #ffffff;
+            --border: #e5e7eb;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background-color: #f8fafc;
+        }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        .priority-tinggi { background-color: #ef4444; }
+        .priority-sedang { background-color: #f59e0b; }
+        .priority-rendah { background-color: #10b981; }
+        .status-open { background-color: #3b82f6; }
+        .status-closed { background-color: #6b7280; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Dashboard IT Supervisor</h1>
+    </div>
+
+    <!-- Form Buat Tiket -->
+    <div class="card">
+        <h2>Buat Tiket Baru</h2>
+        <form id="ticketForm">
+            <div class="form-group">
+                <label for="judul">Judul Masalah</label>
+                <input type="text" id="judul" required placeholder="Contoh: Email kantor tidak bisa diakses">
+            </div>
+            <div class="form-group">
+                <label for="pengirim">Nama Pelapor</label>
+                <input type="text" id="pengirim" required placeholder="Nama Karyawan">
+            </div>
+            <div class="form-group">
+                <label for="prioritas">Tingkat Prioritas</label>
+                <select id="prioritas">
+                    <option value="Rendah">Rendah</option>
+                    <option value="Sedang">Sedang</option>
+                    <option value="Tinggi">Tinggi</option>
+                </select>
+            </div>
+            <button type="submit">Submit Tiket</button>
+        </form>
+    </div>
+
+    <!-- Daftar Tiket -->
+    <div class="card">
+        <h2>Daftar Tiket Aktif</h2>
+        <table id="ticketTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Judul</th>
+                    <th>Pelapor</th>
+                    <th>Prioritas</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="ticketList">
+                <!-- Data tiket akan masuk ke sini via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Data dummy awal
+    let tickets = [
+        { id: 'TKT-001', judul: 'Printer lantai 2 error', pengirim: 'Budi', prioritas: 'Sedang', status: 'Open' }
+    ];
+
+    const ticketForm = document.getElementById('ticketForm');
+    const ticketList = document.getElementById('ticketList');
+
+    // Fungsi untuk merender tabel
+    function renderTickets() {
+        ticketList.innerHTML = '';
+        tickets.forEach((ticket, index) => {
+            const priorityClass = `priority-${ticket.prioritas.toLowerCase()}`;
+            const statusClass = `status-${ticket.status.toLowerCase()}`;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${ticket.id}</strong></td>
+                <td>${ticket.judul}</td>
+                <td>${ticket.pengirim}</td>
+                <td><span class="badge ${priorityClass}">${ticket.prioritas}</span></td>
+                <td><span class="badge ${statusClass}">${ticket.status}</span></td>
+                <td>
+                    ${ticket.status === 'Open' ? `<button onclick="tutupTiket(${index})" style="padding: 5px 10px; font-size: 12px; background-color: #10b981;">Selesaikan</button>` : 'Selesai'}
+                </td>
+            `;
+            ticketList.appendChild(tr);
+        });
+    }
+
+    // Event listener untuk form submit
+    ticketForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const judul = document.getElementById('judul').value;
+        const pengirim = document.getElementById('pengirim').value;
+        const prioritas = document.getElementById('prioritas').value;
+        
+        const newTicket = {
+            id: `TKT-${String(tickets.length + 2).padStart(3, '0')}`,
+            judul: judul,
+            pengirim: pengirim,
+            prioritas: prioritas,
+            status: 'Open'
+        };
+
+        tickets.unshift(newTicket); // Tambah di paling atas
+        renderTickets();
+        ticketForm.reset(); // Kosongkan form
+    });
+
+    // Fungsi untuk mengubah status tiket menjadi Closed
+    window.tutupTiket = function(index) {
+        tickets[index].status = 'Closed';
+        renderTickets();
+    };
+
+    // Render awal saat halaman dimuat
+    renderTickets();
+</script>
+
+</body>
+</html>

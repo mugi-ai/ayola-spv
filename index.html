@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Portal IT</title>
+    <style>
+        :root { 
+            --primary: #1e3a8a; 
+            --bg: #f8fafc; 
+            --text: #1e293b; 
+            --card-bg: #ffffff; 
+            --border: #e2e8f0; 
+        }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            height: 100vh;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        .login-container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+        }
+        .logo-login {
+            width: 80px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-top: 0;
+            color: var(--primary);
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #172554;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 15px;
+            display: none; /* Disembunyikan secara default */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <!-- Jangan lupa sesuaikan nama logo.png di bawah ini jika perlu -->
+        <img src="Ayola.png" alt="Logo" class="logo-login">
+        
+        <h2>Login Administrator</h2>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Masukkan username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Masukkan password" required>
+            </div>
+
+            <button type="submit">Masuk</button>
+            <div id="errorMessage" class="error-message">Username atau password salah!</div>
+        </form>
+    </div>
+
+    <script>
+        // --- PENGATURAN USERNAME DAN PASSWORD ---
+        // Anda bisa mengubah 'admin' dan '12345' di bawah ini
+        const validUsername = "admin";
+        const validPassword = "123"; 
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Mencegah halaman refresh otomatis
+            
+            const inputUser = document.getElementById('username').value;
+            const inputPass = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMessage');
+
+            // Cek apakah username dan password cocok
+            if (inputUser === validUsername && inputPass === validPassword) {
+                // Jika BENAR, sembunyikan pesan error dan pindah ke halaman Dashboard
+                errorMsg.style.display = 'none';
+                
+                // Simpan "tanda" bahwa user sudah login (opsional untuk keamanan tambahan nanti)
+                localStorage.setItem('isLoggedIn', 'true');
+                
+                // Pindah halaman
+                window.location.href = 'dashboard.html'; 
+            } else {
+                // Jika SALAH, tampilkan pesan error
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+</html>

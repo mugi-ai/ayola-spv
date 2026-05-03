@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List IT Supervisor</title>
+    <style>
+        :root { --primary: #8b5cf6; --bg: #f5f3ff; --text: #1e293b; --card-bg: #ffffff; --border: #e2e8f0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        .container { width: 100%; max-width: 600px; /* Lebih kecil agar pas untuk list */ }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card { background-color: var(--card-bg); padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 16px; }
+        button { background-color: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { opacity: 0.9; }
+        ul { list-style-type: none; padding: 0; margin: 0; }
+        li { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); transition: 0.2s; }
+        li:last-child { border-bottom: none; }
+        .task-text { flex: 1; margin-left: 10px; font-size: 16px; cursor: pointer; }
+        .completed .task-text { text-decoration: line-through; color: #94a3b8; }
+        .btn-delete { background-color: #ef4444; padding: 6px 12px; font-size: 12px; border-radius: 4px; }
+        checkbox { transform: scale(1.2); cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Pekerjaan & Tugas Harian</h1>
+    </div>
+
+    <div class="card">
+        <form id="todoForm" class="input-group">
+            <input type="text" id="taskInput" placeholder="Ketik tugas baru di sini..." required>
+            <button type="submit">Tambah</button>
+        </form>
+
+        <ul id="taskList">
+            <!-- Daftar tugas akan muncul di sini -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Ambil data dari Local Storage atau buat array kosong jika belum ada
+    let tasks = JSON.parse(localStorage.getItem('it_todos')) || [];
+
+    function saveToLocalStorage() {
+        localStorage.setItem('it_todos', JSON.stringify(tasks));
+    }
+
+    // Fungsi menambah tugas baru
+    document.getElementById('todoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const input = document.getElementById('taskInput');
+        const newTask = {
+            id: Date.now(),
+            text: input.value,
+            completed: false
+        };
+        tasks.push(newTask);
+        saveToLocalStorage();
+        renderTasks();
+        input.value = ''; // Kosongkan input
+    });
+
+    // Fungsi mengubah status Selesai/Belum
+    window.toggleTask = function(id) {
+        tasks = tasks.map(task => {
+            if (task.id === id) {
+                return { ...task, completed: !task.completed };
+            }
+            return task;
+        });
+        saveToLocalStorage();
+        renderTasks();
+    };
+
+    // Fungsi menghapus tugas
+    window.deleteTask = function(id) {
+        tasks = tasks.filter(task => task.id !== id);
+        saveToLocalStorage();
+        renderTasks();
+    };
+
+    // Fungsi menampilkan tugas ke layar
+    function renderTasks() {
+        const list = document.getElementById('taskList');
+        list.innerHTML = '';
+        
+        tasks.forEach(task => {
+            const li = document.createElement('li');
+            if (task.completed) li.classList.add('completed');
+            
+            li.innerHTML = `
+                <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
+                <span class="task-text" onclick="toggleTask(${task.id})">${task.text}</span>
+                <button class="btn-delete" onclick="deleteTask(${task.id})">Hapus</button>
+            `;
+            list.appendChild(li);
+        });
+    }
+
+    // Tampilkan saat pertama kali dibuka
+    renderTasks();
+</script>
+
+</body>
+</html>
