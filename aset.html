@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Manajemen Aset IT</title>
+    <style>
+        :root { --primary: #0284c7; --bg: #f0fdfa; --text: #0f172a; --card-bg: #ffffff; --border: #cbd5e1; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        .container { width: 100%; max-width: 1000px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card { background-color: var(--card-bg); padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        input, select { padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
+        .btn-group { margin-top: 15px; display: flex; gap: 10px; }
+        button { background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { opacity: 0.9; }
+        .btn-excel { background-color: #16a34a; }
+        .btn-danger { background-color: #ef4444; padding: 6px 12px; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 14px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
+        th { background-color: #f8fafc; font-weight: 600; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; color: white; font-weight: bold; }
+        .status-tersedia { background-color: #10b981; }
+        .status-digunakan { background-color: #3b82f6; }
+        .status-rusak { background-color: #ef4444; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Dashboard Inventaris Aset IT</h1>
+    </div>
+
+    <!-- Form Input Aset -->
+    <div class="card">
+        <h2>Tambah Aset Baru</h2>
+        <form id="assetForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="kategori">Kategori</label>
+                    <select id="kategori">
+                        <option value="Laptop">Laptop</option>
+                        <option value="PC Desktop">PC Desktop</option>
+                        <option value="Monitor">Monitor</option>
+                        <option value="Printer">Printer</option>
+                        <option value="Jaringan">Perangkat Jaringan (Router/Switch)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="merk">Merk & Tipe</label>
+                    <input type="text" id="merk" placeholder="Contoh: Lenovo ThinkPad T14" required>
+                </div>
+                <div class="form-group">
+                    <label for="serial">Serial Number (SN)</label>
+                    <input type="text" id="serial" placeholder="Contoh: PF3B9X12" required>
+                </div>
+                <div class="form-group">
+                    <label for="pengguna">Pengguna / Lokasi</label>
+                    <input type="text" id="pengguna" placeholder="Nama Karyawan atau Nama Ruangan" required>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status Aset</label>
+                    <select id="status">
+                        <option value="Tersedia">Tersedia (Di Gudang IT)</option>
+                        <option value="Digunakan">Sedang Digunakan</option>
+                        <option value="Rusak">Rusak / Sedang Servis</option>
+                    </select>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button type="submit">Simpan Aset</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Daftar Aset -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Daftar Aset Perusahaan</h2>
+            <button class="btn-excel" onclick="exportToExcel()">Download Excel (.csv)</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Kode Aset</th>
+                    <th>Kategori</th>
+                    <th>Merk & Tipe</th>
+                    <th>Serial Number</th>
+                    <th>Pengguna/Lokasi</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="assetList"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Fitur canggih: Mengambil data dari penyimpanan browser (Local Storage)
+    let assets = JSON.parse(localStorage.getItem('it_assets')) || [];
+
+    // Fungsi menyimpan ke Local Storage
+    function saveToLocalStorage() {
+        localStorage.setItem('it_assets', JSON.stringify(assets));
+    }
+
+    // Fungsi Tambah Aset
+    document.getElementById('assetForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const newAsset = {
+            id: `AST-${Date.now().toString().slice(-5)}`, // Bikin kode aset otomatis
+            kategori: document.getElementById('kategori').value,
+            merk: document.getElementById('merk').value,
+            serial: document.getElementById('serial').value,
+            pengguna: document.getElementById('pengguna').value,
+            status: document.getElementById('status').value
+        };
+
+        assets.unshift(newAsset); // Tambah ke urutan atas
+        saveToLocalStorage();     // Simpan ke memory browser
+        renderTable();            // Tampilkan di tabel
+        this.reset();             // Kosongkan form
+    });
+
+    // Fungsi Hapus Aset
+    window.hapusAset = function(index) {
+        if(confirm('Apakah Anda yakin ingin menghapus data aset ini?')) {
+            assets.splice(index, 1);
+            saveToLocalStorage();
+            renderTable();
+        }
+    };
+
+    // Fungsi Menampilkan Data ke Tabel
+    function renderTable() {
+        const list = document.getElementById('assetList');
+        list.innerHTML = assets.map((a, index) => {
+            const statusClass = `status-${a.status.split(' ')[0].toLowerCase()}`; // Ambil kata pertama untuk class warna
+            return `
+                <tr>
+                    <td><strong>${a.id}</strong></td>
+                    <td>${a.kategori}</td>
+                    <td>${a.merk}</td>
+                    <td>${a.serial}</td>
+                    <td>${a.pengguna}</td>
+                    <td><span class="badge ${statusClass}">${a.status}</span></td>
+                    <td><button class="btn-danger" onclick="hapusAset(${index})">Hapus</button></td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Fungsi Export ke Excel
+    window.exportToExcel = function() {
+        if (assets.length === 0) {
+            alert("Belum ada data aset untuk diexport!");
+            return;
+        }
+
+        let csvContent = "Kode Aset,Kategori,Merk & Tipe,Serial Number,Pengguna/Lokasi,Status\n";
+        
+        assets.forEach(a => {
+            // Menghindari error jika ada tanda koma pada input teks
+            let merk = `"${a.merk}"`;
+            let pengguna = `"${a.pengguna}"`;
+            csvContent += `${a.id},${a.kategori},${merk},${a.serial},${pengguna},${a.status}\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "laporan_aset_it.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // Tampilkan data saat halaman pertama kali dibuka
+    renderTable();
+</script>
+
+</body>
+</html>
