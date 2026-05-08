@@ -111,34 +111,40 @@
     </div>
 
     <script>
-        // --- PENGATURAN USERNAME DAN PASSWORD ---
-        // Anda bisa mengubah 'admin' dan '12345' di bawah ini
-        const validUsername = "admin";
-        const validPassword = "123"; 
+    // URL API SheetDB Anda mengarah ke tab 'user'
+    const API_URL = "https://sheetdb.io/api/v1/uflcumfapg0oz?sheet=user";
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Mencegah halaman refresh otomatis
-            
-            const inputUser = document.getElementById('username').value;
-            const inputPass = document.getElementById('password').value;
-            const errorMsg = document.getElementById('errorMessage');
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const inputUser = document.getElementById('username').value;
+        const inputPass = document.getElementById('password').value;
+        const errorMsg = document.getElementById('errorMessage');
 
-            // Cek apakah username dan password cocok
-            if (inputUser === validUsername && inputPass === validPassword) {
-                // Jika BENAR, sembunyikan pesan error dan pindah ke halaman Dashboard
-                errorMsg.style.display = 'none';
-                
-                // Simpan "tanda" bahwa user sudah login (opsional untuk keamanan tambahan nanti)
+        try {
+            // Mengambil data user dari Google Sheets
+            const response = await fetch(API_URL);
+            const users = await response.json();
+
+            // Mencari apakah ada username dan password yang cocok di baris spreadsheet
+            const validUser = users.find(u => u.username === inputUser && u.password === inputPass);
+
+            if (validUser) {
+                // Jika cocok, simpan nama user dan pindah ke dashboard
                 localStorage.setItem('isLoggedIn', 'true');
-                
-                // Pindah halaman
+                localStorage.setItem('namaUser', validUser.nama);
                 window.location.href = 'dashboard.html'; 
             } else {
-                // Jika SALAH, tampilkan pesan error
+                // Jika salah
                 errorMsg.style.display = 'block';
+                errorMsg.innerText = "Username atau Password salah!";
             }
-        });
-    </script>
+        } catch (error) {
+            console.error("Koneksi gagal:", error);
+            alert("Gagal terhubung ke database. Pastikan API SheetDB aktif.");
+        }
+    });
+</script>
 
 </body>
 </html>

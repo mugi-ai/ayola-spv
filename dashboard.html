@@ -3,136 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal IT - PT Nama Perusahaan Anda</title>
-    
+    <title>Ayola SPV - Premium Dashboard</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
-        :root { 
-            --primary: #1e3a8a; 
-            --secondary: #3b82f6; 
-            --bg: #f8fafc; 
-            --text: #1e293b; 
-            --card-bg: #ffffff; 
-            --border: #e2e8f0; 
-        }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding: 40px 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .logo-perusahaan {
-            width: 120px;
-            height: auto;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --dark: #1e1e2d;
+            --light: #f8f9fa;
         }
 
-        .header h1 {
-            color: var(--primary);
-            font-size: 32px;
-            margin-bottom: 10px;
-            margin-top: 0;
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            background: #f1f3f9; 
+            color: #2d3436; 
         }
-        .header p {
-            color: #64748b;
-            font-size: 16px;
-            margin-top: 0;
+
+        /* Sidebar Modern */
+        .sidebar { 
+            width: 260px; 
+            background: linear-gradient(180deg, #1e1e2d 0%, #12121a 100%); 
+            color: white; 
+            height: 100vh; 
+            position: fixed; 
+            padding: 30px 20px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
         }
+
+        .sidebar h2 { 
+            font-size: 22px; 
+            font-weight: 700; 
+            text-align: center; 
+            margin-bottom: 40px; 
+            color: var(--success);
+            letter-spacing: 1px;
+        }
+
+        .menu-item { 
+            display: flex; 
+            align-items: center; 
+            padding: 14px 18px; 
+            cursor: pointer; 
+            border-radius: 12px; 
+            margin-bottom: 8px; 
+            transition: all 0.3s ease;
+            color: #a2a3b7;
+        }
+
+        .menu-item:hover { 
+            background: rgba(255,255,255,0.05); 
+            color: white;
+        }
+
+        .menu-item.active { 
+            background: var(--primary); 
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+        }
+
+        .menu-item span { margin-right: 15px; font-size: 22px; }
+
+        /* Main Content */
+        .main-content { margin-left: 300px; padding: 40px; width: 100%; box-sizing: border-box; }
         
-        /* DIUBAH: Agar 3 menu tampil responsif dan rapi */
-        .menu-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            max-width: 1000px;
-            width: 100%;
+        .section { display: none; }
+        .section.active { display: block; animation: slideUp 0.5s ease; }
+
+        /* Cards */
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
+            border: 1px solid rgba(0,0,0,0.02);
         }
-        
-        .menu-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            text-decoration: none;
-            color: var(--text);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
+
+        h3 { font-size: 20px; font-weight: 700; margin-top: 0; margin-bottom: 25px; display: flex; align-items: center; }
+        h3 span { margin-right: 12px; color: var(--primary); }
+
+        /* Stats Header */
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 30px; }
+        .stat-card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 20px; 
+            text-align: left; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
         }
-        .menu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-            border-color: var(--secondary);
+        .stat-card h4 { margin: 0; color: #636e72; font-size: 14px; font-weight: 600; }
+        .stat-card p { margin: 10px 0 0; font-size: 28px; font-weight: 700; color: #2d3436; }
+        .stat-card::after { content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: var(--primary); }
+
+        /* Form Styling */
+        .input-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 15px; 
+            background: #f8f9fd; 
+            padding: 20px; 
+            border-radius: 15px; 
+            align-items: end; 
+            margin-bottom: 30px; 
         }
-        .icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+
+        input, select { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 10px; 
+            font-family: inherit;
+            transition: 0.3s;
         }
-        .menu-card h2 {
-            margin: 0 0 10px 0;
-            color: var(--primary);
+
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1); }
+
+        button { 
+            padding: 12px 25px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: 0.3s;
         }
-        .menu-card p {
-            margin: 0;
-            color: #64748b;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        .footer {
-            margin-top: 50px;
-            color: #94a3b8;
-            font-size: 14px;
-        }
+
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3); }
+
+        /* Table Styling */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        th { padding: 15px; text-align: left; color: #b5b5c3; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 18px 15px; background: white; border-top: 1px solid #f1f1f1; border-bottom: 1px solid #f1f1f1; }
+        td:first-child { border-left: 1px solid #f1f1f1; border-radius: 12px 0 0 12px; }
+        td:last-child { border-right: 1px solid #f1f1f1; border-radius: 0 12px 12px 0; }
+        tr:hover td { background: #fcfcfd; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .logout-btn { color: var(--danger) !important; margin-top: auto; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <img src="Ayola.png" alt="Logo Perusahaan" class="logo-perusahaan">
-        <h1>AYOLA HOTEL LIPPO CIKARANG</h1>
-        <p>Sistem Informasi Manajemen Layanan & Inventaris Departemen IT</p>
+    <div class="sidebar">
+        <h2>AYOLA SPV</h2>
+        <div class="menu-item active" onclick="buka('home', this)"><span class="material-symbols-outlined">grid_view</span> Dashboard</div>
+        <div class="menu-item" onclick="buka('aset', this)"><span class="material-symbols-outlined">inventory_2</span> Aset</div>
+        <div class="menu-item" onclick="buka('tiket', this)"><span class="material-symbols-outlined">confirmation_number</span> Tiket</div>
+        <div class="menu-item" onclick="buka('todo', this)"><span class="material-symbols-outlined">task_alt</span> To-Do</div>
+        <div class="menu-item logout-btn" onclick="logout()" style="position: absolute; bottom: 40px; width: 80%;"><span class="material-symbols-outlined">logout</span> Logout</div>
     </div>
 
-    <div class="menu-container">
-        <!-- 1. Menu Tiket -->
-        <a href="tiket.html" class="menu-card">
-            <div class="icon">🎟️</div>
-            <h2>IT Helpdesk</h2>
-            <p>Kelola laporan masalah, permintaan layanan, dan tiket dukungan IT dari karyawan.</p>
-        </a>
+    <div class="main-content">
+        <div id="s-home" class="section active">
+            <h2 style="margin-top:0">Overview Dashboard</h2>
+            <div class="stats">
+                <div class="stat-card"><h4>Total Aset</h4><p id="c-aset">0</p></div>
+                <div class="stat-card" style="border-left: 5px solid var(--danger)"><h4>Tiket Kerusakan</h4><p id="c-tiket">0</p></div>
+                <div class="stat-card" style="border-left: 5px solid var(--success)"><h4>Tugas Aktif</h4><p id="c-todo">0</p></div>
+            </div>
+            <div class="card">
+                <h3><span class="material-symbols-outlined">notifications</span> Info Terkini</h3>
+                <p>Sistem Management Ayola berjalan normal. Seluruh data tersinkronisasi ke Google Sheets.</p>
+            </div>
+        </div>
 
-        <!-- 2. Menu Aset -->
-        <a href="aset.html" class="menu-card">
-            <div class="icon">💻</div>
-            <h2>Manajemen Aset</h2>
-            <p>Data inventaris perangkat keras, kelola peminjaman, dan pantau status perangkat IT.</p>
-        </a>
+        <div id="s-aset" class="section">
+            <div class="card">
+                <h3><span class="material-symbols-outlined">inventory_2</span> Management Aset</h3>
+                <form id="f-aset" class="input-grid">
+                    <div><label style="font-size: 11px; font-weight: 600; color: #b5b5c3;">Nama Aset</label><input id="an" required></div>
+                    <div><label style="font-size: 11px; font-weight: 600; color: #b5b5c3;">Lokasi</label><input id="al" required></div>
+                    <div><label style="font-size: 11px; font-weight: 600; color: #b5b5c3;">Status</label><select id="as"><option>Normal</option><option>Rusak</option></select></div>
+                    <button type="submit">Tambah</button>
+                </form>
+                <table><thead><tr><th>Aset</th><th>Lokasi</th><th>Status</th></tr></thead><tbody id="t-aset"></tbody></table>
+            </div>
+        </div>
 
-        <!-- 3. Menu To-Do List (BARU) -->
-        <a href="todo.html" class="menu-card">
-            <div class="icon">📝</div>
-            <h2>To-Do List</h2>
-            <p>Catatan pribadi IT Supervisor untuk memantau tugas harian, jadwal maintenance, dan agenda.</p>
-        </a>
+        <div id="s-tiket" class="section">
+            <div class="card">
+                <h3><span class="material-symbols-outlined">confirmation_number</span> Tiket Kerusakan</h3>
+                <form id="f-tiket" class="input-grid">
+                    <input id="tp" placeholder="Nama Pelapor" required>
+                    <select id="td">
+                        <option value="Housekeeping">Housekeeping</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Front Office">Front Office</option>
+                    </select>
+                    <input id="tm" placeholder="Masalah" required>
+                    <button type="submit" style="background:var(--danger)">Kirim</button>
+                </form>
+                <table><thead><tr><th>Pelapor</th><th>Departemen</th><th>Masalah</th></tr></thead><tbody id="t-tiket"></tbody></table>
+            </div>
+        </div>
+
+        <div id="s-todo" class="section">
+            <div class="card">
+                <h3><span class="material-symbols-outlined">task_alt</span> To-Do List</h3>
+                <form id="f-todo" class="input-grid">
+                    <input id="tt" placeholder="Tugas" required>
+                    <input id="tpk" placeholder="Nama PIC" required>
+                    <button type="submit" style="background:#9b59b6">Tambah</button>
+                </form>
+                <div id="t-todo"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="footer">
-        &copy; 2026 IT Department - Internal System
-    </div>
+    <script>
+        const API = "https://sheetdb.io/api/v1/uflcumfapg0oz";
 
+        function buka(id, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            document.getElementById('s-' + id).classList.add('active');
+            el.classList.add('active');
+        }
+
+        async function load() {
+            try {
+                const [ra, rt, ro] = await Promise.all([
+                    fetch(API+"?sheet=assets").then(r => r.json()),
+                    fetch(API+"?sheet=tickets").then(r => r.json()),
+                    fetch(API+"?sheet=todolist").then(r => r.json())
+                ]);
+                document.getElementById('c-aset').innerText = ra.length;
+                document.getElementById('c-tiket').innerText = rt.length;
+                document.getElementById('c-todo').innerText = ro.length;
+
+                document.getElementById('t-aset').innerHTML = ra.map(i => `<tr><td style="font-weight:600">${i.nama_aset}</td><td>${i.lokasi}</td><td><span style="color:${i.status==='Rusak'?'#f72585':'#4cc9f0'}">• ${i.status}</span></td></tr>`).join('');
+                document.getElementById('t-tiket').innerHTML = rt.map(i => `<tr><td style="font-weight:600">${i.pelapor}</td><td><span style="background:#f1f3f9; padding:4px 10px; border-radius:6px; font-size:12px;">${i.departemen || 'General'}</span></td><td>${i.masalah}</td></tr>`).join('');
+                document.getElementById('t-todo').innerHTML = ro.map(i => `<div style="padding:15px; background:#f8f9fd; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;"><span>${i.tugas}</span><span style="font-size:12px; color:#b5b5c3">PIC: ${i.pic}</span></div>`).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function kirim(sh, data, fId) {
+            const res = await fetch(API+"?sheet="+sh, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({data: [data]})
+            });
+            if(res.ok) { alert("Berhasil!"); document.getElementById(fId).reset(); load(); }
+        }
+
+        document.getElementById('f-aset').onsubmit = (e) => { e.preventDefault(); kirim('assets', {nama_aset:document.getElementById('an').value, lokasi:document.getElementById('al').value, status:document.getElementById('as').value}, 'f-aset'); };
+        document.getElementById('f-tiket').onsubmit = (e) => { e.preventDefault(); kirim('tickets', {pelapor:document.getElementById('tp').value, departemen:document.getElementById('td').value, masalah:document.getElementById('tm').value, status_tiket:'Open'}, 'f-tiket'); };
+        document.getElementById('f-todo').onsubmit = (e) => { e.preventDefault(); kirim('todolist', {tugas:document.getElementById('tt').value, pic:document.getElementById('tpk').value, status:'Proses'}, 'f-todo'); };
+
+        function logout() { localStorage.clear(); window.location.href='index.html'; }
+        load();
+    </script>
 </body>
 </html>
