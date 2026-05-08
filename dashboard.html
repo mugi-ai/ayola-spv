@@ -196,6 +196,10 @@
                         <option value="Housekeeping">Housekeeping</option>
                         <option value="Engineering">Engineering</option>
                         <option value="Front Office">Front Office</option>
+                        <option value="Accounting">Accounting</option>
+                        <option value="HRD">HRD</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Driver">Driver</option>
                     </select>
                     <input id="tm" placeholder="Masalah" required>
                     <button type="submit" style="background:var(--danger)">Kirim</button>
@@ -238,8 +242,19 @@
                 document.getElementById('c-tiket').innerText = rt.length;
                 document.getElementById('c-todo').innerText = ro.length;
 
-                document.getElementById('t-aset').innerHTML = ra.map(i => `<tr><td style="font-weight:600">${i.nama_aset}</td><td>${i.lokasi}</td><td><span style="color:${i.status==='Rusak'?'#f72585':'#4cc9f0'}">• ${i.status}</span></td></tr>`).join('');
-                document.getElementById('t-tiket').innerHTML = rt.map(i => `<tr><td style="font-weight:600">${i.pelapor}</td><td><span style="background:#f1f3f9; padding:4px 10px; border-radius:6px; font-size:12px;">${i.departemen || 'General'}</span></td><td>${i.masalah}</td></tr>`).join('');
+                // Tabel Aset
+                document.getElementById('t-aset').innerHTML = ra.map(i => `<tr><td style="font-weight:600">${i.nama_aset}</td><td>${i.lokasi}</td><td><span style="color:${i.status==='Rusak'?'#f72585':'#4cc9f0'}">• ${i.status}</span></td><td>${i.foto ? `<a href="${i.foto}" target="_blank" class="img-preview-btn"><span class="material-symbols-outlined">image</span> Lihat</a>` : '-'}</td></tr>`).join('');
+                
+                // --- PERBAIKAN DI SINI (TABEL TIKET) ---
+                document.getElementById('t-tiket').innerHTML = rt.map(i => `
+                    <tr>
+                        <td style="font-weight:600">${i.pelapor}</td>
+                        <td><span style="background:#f1f3f9; padding:4px 10px; border-radius:6px; font-size:12px;">${i.departemen || 'General'}</span></td>
+                        <td>${i.masalah}</td>
+                    </tr>
+                `).join('');
+                // ---------------------------------------
+
                 document.getElementById('t-todo').innerHTML = ro.map(i => `<div style="padding:15px; background:#f8f9fd; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;"><span>${i.tugas}</span><span style="font-size:12px; color:#b5b5c3">PIC: ${i.pic}</span></div>`).join('');
             } catch (e) { console.error(e); }
         }
