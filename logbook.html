@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ayola IT Portal – Logbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div id="appPage">
+  <div class="sidebar" id="sidebar"></div>
+
+  <div class="main">
+    <div class="page">
+      <div class="page-header">
+        <h1>Logbook Aktivitas</h1>
+        <p>Catatan kegiatan harian tim IT</p>
+      </div>
+
+      <!-- Form tambah log -->
+      <div class="card" style="margin-bottom:22px">
+        <div class="card-title"><span class="material-symbols-rounded">edit_note</span> Tambah Catatan Aktivitas</div>
+        <form id="f-log" onsubmit="submitLog(event)">
+          <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+            <div class="form-group">
+              <label>Tanggal</label>
+              <input type="date" id="l-tgl" required>
+            </div>
+            <div class="form-group">
+              <label>Waktu</label>
+              <input type="time" id="l-time" required>
+            </div>
+            <div class="form-group">
+              <label>Kategori</label>
+              <select id="l-kat">
+                <option>Pemeliharaan</option>
+                <option>Instalasi</option>
+                <option>Perbaikan</option>
+                <option>Konfigurasi</option>
+                <option>Monitoring</option>
+                <option>Update/Upgrade</option>
+                <option>Backup</option>
+                <option>Support User</option>
+                <option>Lainnya</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Teknisi</label>
+              <input type="text" id="l-tech" placeholder="Nama teknisi">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Judul Aktivitas</label>
+            <input type="text" id="l-judul" placeholder="Ringkasan aktivitas yang dikerjakan" required>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label>Detail Keterangan</label>
+            <textarea id="l-desc" rows="3" placeholder="Deskripsi lengkap pekerjaan, temuan, dan hasil akhir..." style="resize:vertical"></textarea>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button class="btn btn-primary" type="submit">
+              <span class="material-symbols-rounded" style="font-size:16px">add_circle</span> Tambah Log
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="exportLogs()">
+              <span class="material-symbols-rounded" style="font-size:16px">download</span> Export CSV
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filter & list -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+          <div class="card-title" style="margin-bottom:0"><span class="material-symbols-rounded">list_alt</span> Riwayat Aktivitas</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="search-box" style="width:auto">
+              <span class="material-symbols-rounded">search</span>
+              <input type="text" id="l-search" placeholder="Cari log..." oninput="renderLogs()" style="width:200px">
+            </div>
+            <select id="l-fkat" onchange="renderLogs()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.82rem;outline:none">
+              <option value="">Semua Kategori</option>
+              <option>Pemeliharaan</option><option>Instalasi</option>
+              <option>Perbaikan</option><option>Konfigurasi</option>
+              <option>Monitoring</option><option>Update/Upgrade</option>
+              <option>Backup</option><option>Support User</option><option>Lainnya</option>
+            </select>
+            <input type="date" id="l-fdate" onchange="renderLogs()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.82rem;outline:none">
+          </div>
+        </div>
+
+        <div id="log-list">
+          <div style="text-align:center;padding:40px;color:var(--muted)">
+            <span class="material-symbols-rounded" style="display:block;font-size:36px;margin-bottom:8px;opacity:0.4">menu_book</span>
+            Belum ada log. Tambah aktivitas pertama!
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="sidebar-builder.js"></script>
+<script>
+const API = "https://sheetdb.io/api/v1/uflcumfapg0oz";
+let logs = JSON.parse(localStorage.getItem('ayola_logs')) || [];
+
+const catColors = {
+  'Pemeliharaan':  'badge-teal',
+  'Instalasi':     'badge-blue',
+  'Perbaikan':     'badge-red',
+  'Konfigurasi':   'badge-purple',
+  'Monitoring':    'badge-green',
+  'Update/Upgrade':'badge-amber',
+  'Backup':        'badge-sky',
+  'Support User':  'badge-teal',
+  'Lainnya':       'badge-gray',
+};
+const catBorderColors = {
+  'Pemeliharaan':  'var(--teal)',
+  'Instalasi':     'var(--sky)',
+  'Perbaikan':     'var(--red)',
+  'Konfigurasi':   'var(--purple)',
+  'Monitoring':    'var(--green)',
+  'Update/Upgrade':'var(--amber)',
+  'Backup':        '#0ea5e9',
+  'Support User':  'var(--teal)',
+  'Lainnya':       'var(--muted)',
+};
+
+function save() { localStorage.setItem('ayola_logs', JSON.stringify(logs)); }
+
+async function loadLogs() {
+  try {
+    const rl = await fetch(API+'?sheet=logbook').then(r=>r.json());
+    if (Array.isArray(rl) && rl.length) {
+      logs = rl.map((i,idx) => ({
+        id:     idx+1,
+        tgl:    i.tanggal || '',
+        time:   i.waktu   || '',
+        kat:    i.kategori|| 'Lainnya',
+        tech:   i.teknisi || '',
+        judul:  i.judul   || '-',
+        desc:   i.deskripsi||'',
+      }));
+      save();
+    }
+  } catch(e) {}
+  renderLogs();
+}
+
+function submitLog(e) {
+  e.preventDefault();
+  const item = {
+    id:    Date.now(),
+    tgl:   document.getElementById('l-tgl').value,
+    time:  document.getElementById('l-time').value,
+    kat:   document.getElementById('l-kat').value,
+    tech:  document.getElementById('l-tech').value || (localStorage.getItem('namaUser')||'IT'),
+    judul: document.getElementById('l-judul').value,
+    desc:  document.getElementById('l-desc').value,
+  };
+  logs.unshift(item);
+  save();
+  renderLogs();
+  e.target.reset();
+  // Reset tanggal & waktu to now
+  setDefaults();
+  showToast('Log aktivitas dicatat!', 'ok');
+  fetch(API+'?sheet=logbook', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ data:[{ tanggal:item.tgl, waktu:item.time, kategori:item.kat, teknisi:item.tech, judul:item.judul, deskripsi:item.desc }] })
+  }).catch(()=>{});
+}
+
+function deleteLog(id) {
+  if (!isAdmin()) { showToast('Hanya admin yang bisa menghapus log.', 'err'); return; }
+  if (!confirm('Hapus log ini?')) return;
+  logs = logs.filter(l => l.id !== id);
+  save(); renderLogs(); showToast('Log dihapus.', 'ok');
+}
+
+function renderLogs() {
+  const q    = document.getElementById('l-search').value.toLowerCase();
+  const fkat = document.getElementById('l-fkat').value;
+  const fdt  = document.getElementById('l-fdate').value;
+
+  const filtered = logs.filter(l =>
+    (!q    || (l.judul||'').toLowerCase().includes(q) || (l.desc||'').toLowerCase().includes(q) || (l.tech||'').toLowerCase().includes(q)) &&
+    (!fkat || l.kat === fkat) &&
+    (!fdt  || l.tgl === fdt)
+  );
+
+  const admin = isAdmin();
+  const el = document.getElementById('log-list');
+  if (!filtered.length) {
+    el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted)">
+      <span class="material-symbols-rounded" style="display:block;font-size:36px;margin-bottom:8px;opacity:0.4">search_off</span>
+      Tidak ada log yang cocok.</div>`;
+    return;
+  }
+
+  // Group by date
+  const grouped = {};
+  filtered.forEach(l => {
+    const key = l.tgl || 'Tanggal tidak diketahui';
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(l);
+  });
+
+  el.innerHTML = Object.entries(grouped).sort((a,b) => b[0].localeCompare(a[0])).map(([date, entries]) => {
+    const d = new Date(date);
+    const isValid = !isNaN(d);
+    const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const label = isValid ? `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}` : date;
+
+    return `
+      <div style="margin-bottom:20px">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:6px 0 10px;border-bottom:1px solid var(--border);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+          <span class="material-symbols-rounded" style="font-size:14px">calendar_today</span>${label}
+          <span style="margin-left:auto;background:var(--bg);padding:3px 10px;border-radius:20px;font-size:0.68rem">${entries.length} aktivitas</span>
+        </div>
+        ${entries.map(l => `
+          <div class="log-entry" style="border-left-color:${catBorderColors[l.kat]||'var(--muted)'}">
+            <div class="log-meta">
+              <span class="material-symbols-rounded" style="font-size:15px;color:${catBorderColors[l.kat]||'var(--muted)'}">schedule</span>
+              <span class="log-time">${l.time || '–'}</span>
+              <span class="badge ${catColors[l.kat]||'badge-gray'} log-cat">${l.kat}</span>
+              ${l.tech ? `<span class="log-tech"><span class="material-symbols-rounded" style="font-size:12px;vertical-align:middle">person</span> ${l.tech}</span>` : ''}
+              ${admin ? `<button class="todo-del" onclick="deleteLog(${l.id})" style="margin-left:auto" title="Hapus">
+                <span class="material-symbols-rounded">delete</span></button>` : ''}
+            </div>
+            <div class="log-title">${l.judul}</div>
+            ${l.desc ? `<div class="log-desc">${l.desc}</div>` : ''}
+          </div>`).join('')}
+      </div>`;
+  }).join('');
+}
+
+function exportLogs() {
+  if (!logs.length) { showToast('Tidak ada data untuk di-export.', 'info'); return; }
+  const headers = ['Tanggal','Waktu','Kategori','Teknisi','Judul','Deskripsi'];
+  const rows = logs.map(l => [l.tgl,l.time,l.kat,l.tech,`"${l.judul}"`,`"${(l.desc||'').replace(/"/g,'""')}"`]);
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type:'text/csv' }));
+  a.download = `logbook-ayola-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('Export berhasil!', 'ok');
+}
+
+function setDefaults() {
+  const now = new Date();
+  document.getElementById('l-tgl').value  = now.toISOString().slice(0,10);
+  document.getElementById('l-time').value = now.toTimeString().slice(0,5);
+  document.getElementById('l-tech').value = localStorage.getItem('namaUser') || '';
+}
+
+window.onload = () => {
+  if (!authGuard()) return;
+  buildSidebar('logbook');
+  setDefaults();
+  loadLogs();
+};
+</script>
+</body>
+</html>

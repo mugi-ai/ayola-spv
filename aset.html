@@ -1,190 +1,383 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Manajemen Aset IT</title>
-    <style>
-        :root { --primary: #0284c7; --bg: #f0fdfa; --text: #0f172a; --card-bg: #ffffff; --border: #cbd5e1; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; margin: 0; }
-        .container { width: 100%; max-width: 1000px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .card { background-color: var(--card-bg); padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .form-group { display: flex; flex-direction: column; }
-        label { margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-        input, select { padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
-        .btn-group { margin-top: 15px; display: flex; gap: 10px; }
-        button { background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { opacity: 0.9; }
-        .btn-excel { background-color: #16a34a; }
-        .btn-danger { background-color: #ef4444; padding: 6px 12px; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 14px; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
-        th { background-color: #f8fafc; font-weight: 600; }
-        .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; color: white; font-weight: bold; }
-        .status-tersedia { background-color: #10b981; }
-        .status-digunakan { background-color: #3b82f6; }
-        .status-rusak { background-color: #ef4444; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ayola IT Portal – Manajemen Aset</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 </head>
 <body>
+<div id="appPage">
+  <div class="sidebar" id="sidebar"></div>
 
-<div class="container">
-    <div class="header">
-        <h1>Dashboard Inventaris Aset IT</h1>
-    </div>
+  <div class="main">
+    <div class="page">
+      <div class="page-header">
+        <h1>Manajemen Aset IT</h1>
+        <p>Kelola inventaris perangkat keras dan lunak perusahaan</p>
+      </div>
 
-    <!-- Form Input Aset -->
-    <div class="card">
-        <h2>Tambah Aset Baru</h2>
-        <form id="assetForm">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="kategori">Kategori</label>
-                    <select id="kategori">
-                        <option value="Laptop">Laptop</option>
-                        <option value="PC Desktop">PC Desktop</option>
-                        <option value="Monitor">Monitor</option>
-                        <option value="Printer">Printer</option>
-                        <option value="Jaringan">Perangkat Jaringan (Router/Switch)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="merk">Merk & Tipe</label>
-                    <input type="text" id="merk" placeholder="Contoh: Lenovo ThinkPad T14" required>
-                </div>
-                <div class="form-group">
-                    <label for="serial">Serial Number (SN)</label>
-                    <input type="text" id="serial" placeholder="Contoh: PF3B9X12" required>
-                </div>
-                <div class="form-group">
-                    <label for="pengguna">Pengguna / Lokasi</label>
-                    <input type="text" id="pengguna" placeholder="Nama Karyawan atau Nama Ruangan" required>
-                </div>
-                <div class="form-group">
-                    <label for="status">Status Aset</label>
-                    <select id="status">
-                        <option value="Tersedia">Tersedia (Di Gudang IT)</option>
-                        <option value="Digunakan">Sedang Digunakan</option>
-                        <option value="Rusak">Rusak / Sedang Servis</option>
-                    </select>
-                </div>
-            </div>
-            <div class="btn-group">
-                <button type="submit">Simpan Aset</button>
-            </div>
-        </form>
-    </div>
+      <!-- Stats mini -->
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)" id="asetStats">
+        <div class="stat-card"><div class="stat-icon teal"><span class="material-symbols-rounded">devices</span></div><div><div class="stat-num" id="s-total">0</div><div class="stat-label">Total Aset</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><span class="material-symbols-rounded">check_circle</span></div><div><div class="stat-num" id="s-ok">0</div><div class="stat-label">Tersedia</div></div></div>
+        <div class="stat-card"><div class="stat-icon amber"><span class="material-symbols-rounded">person</span></div><div><div class="stat-num" id="s-used">0</div><div class="stat-label">Dipakai</div></div></div>
+        <div class="stat-card"><div class="stat-icon red"><span class="material-symbols-rounded">build</span></div><div><div class="stat-num" id="s-repair">0</div><div class="stat-label">Servis</div></div></div>
+      </div>
 
-    <!-- Daftar Aset -->
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>Daftar Aset Perusahaan</h2>
-            <button class="btn-excel" onclick="exportToExcel()">Download Excel (.csv)</button>
+      <div class="card">
+        <div class="action-bar">
+          <div class="search-box">
+            <span class="material-symbols-rounded">search</span>
+            <input type="text" id="searchAsset" placeholder="Cari aset..." oninput="filterAssets()">
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <select id="filterKat" onchange="filterAssets()" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.85rem;outline:none;cursor:pointer">
+              <option value="">Semua Kategori</option>
+              <option>Laptop</option>
+              <option>PC Desktop</option>
+              <option>Monitor</option>
+              <option>Printer</option>
+              <option>Network Device</option>
+              <option>Server</option>
+              <option>Aksesoris</option>
+            </select>
+            <button class="btn btn-primary" id="btnTambah" onclick="openModal()">
+              <span class="material-symbols-rounded" style="font-size:16px">add</span> Tambah Aset
+            </button>
+          </div>
         </div>
-        <table>
+
+        <div class="table-wrap">
+          <table>
             <thead>
-                <tr>
-                    <th>Kode Aset</th>
-                    <th>Kategori</th>
-                    <th>Merk & Tipe</th>
-                    <th>Serial Number</th>
-                    <th>Pengguna/Lokasi</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
+              <tr>
+                <th>Foto</th>
+                <th>ID Aset</th>
+                <th>Nama & Merk</th>
+                <th>Kategori</th>
+                <th>Serial / SN</th>
+                <th>Status</th>
+                <th>Pengguna / Lokasi</th>
+                <th id="colAksi">Aksi</th>
+              </tr>
             </thead>
-            <tbody id="assetList"></tbody>
-        </table>
+            <tbody id="assetTableBody">
+              <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">
+                <span class="material-symbols-rounded" style="display:block;font-size:36px;margin-bottom:8px;opacity:0.4">inventory_2</span>
+                Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
+<!-- MODAL FORM -->
+<div class="modal-overlay" id="assetModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalTitle">Tambah Aset Baru</h3>
+      <button class="modal-close" onclick="closeModal()">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    <form id="assetForm" onsubmit="handleFormSubmit(event)">
+      <input type="hidden" id="assetId">
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>ID / Kode Aset</label>
+          <input type="text" id="assetKode" placeholder="Contoh: AST-001" required>
+        </div>
+        <div class="form-group">
+          <label>Nama & Merk</label>
+          <input type="text" id="assetName" required placeholder="Contoh: Lenovo ThinkPad T14">
+        </div>
+        <div class="form-group">
+          <label>Kategori</label>
+          <select id="assetCategory" required>
+            <option value="">Pilih Kategori</option>
+            <option>Laptop</option>
+            <option>PC Desktop</option>
+            <option>Monitor</option>
+            <option>Printer</option>
+            <option>Network Device</option>
+            <option>Server</option>
+            <option>Aksesoris</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Serial Number</label>
+          <input type="text" id="assetSN" placeholder="SN / S/N Perangkat">
+        </div>
+        <div class="form-group">
+          <label>Status Kondisi</label>
+          <select id="assetStatus" required>
+            <option value="Tersedia">Tersedia</option>
+            <option value="Dipakai">Dipakai</option>
+            <option value="Rusak/Servis">Rusak/Servis</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pengguna / Lokasi</label>
+          <input type="text" id="assetLocation" required placeholder="Nama karyawan / ruangan">
+        </div>
+      </div>
+
+      <!-- Photo Upload -->
+      <div class="form-group" style="margin-top:4px">
+        <label>Foto Aset</label>
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('assetPhoto').click()">
+          <span class="material-symbols-rounded" id="uploadIcon">add_photo_alternate</span>
+          <p id="uploadText">Klik untuk upload foto aset</p>
+          <p style="font-size:0.72rem;opacity:0.6;margin-top:2px">JPG / PNG · Maks. 1 MB</p>
+          <img id="photoPreview" class="upload-preview" style="display:none;margin:8px auto 0">
+        </div>
+        <input type="file" id="assetPhoto" accept="image/*" style="display:none">
+        <input type="hidden" id="photoBase64">
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:28px">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Batal</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmit">
+          <span class="material-symbols-rounded" style="font-size:16px">save</span> Simpan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="sidebar-builder.js"></script>
 <script>
-    // Fitur canggih: Mengambil data dari penyimpanan browser (Local Storage)
-    let assets = JSON.parse(localStorage.getItem('it_assets')) || [];
+const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/9z6fip68xxtcl';
+let allAssets = [];
 
-    // Fungsi menyimpan ke Local Storage
-    function saveToLocalStorage() {
-        localStorage.setItem('it_assets', JSON.stringify(assets));
+// Photo upload handler
+document.getElementById('assetPhoto').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 1024 * 1024) {
+    showToast('Ukuran foto terlalu besar! Maks. 1MB.', 'err'); this.value = ''; return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    document.getElementById('photoBase64').value = ev.target.result;
+    document.getElementById('photoPreview').src = ev.target.result;
+    document.getElementById('photoPreview').style.display = 'block';
+    document.getElementById('uploadIcon').style.display = 'none';
+    document.getElementById('uploadText').textContent = file.name;
+    document.getElementById('uploadArea').classList.add('has-file');
+  };
+  reader.readAsDataURL(file);
+});
+
+// Drag & drop
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor='var(--teal)'; });
+uploadArea.addEventListener('dragleave', () => uploadArea.style.borderColor='');
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault(); uploadArea.style.borderColor='';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const dt = new DataTransfer(); dt.items.add(file);
+    document.getElementById('assetPhoto').files = dt.files;
+    document.getElementById('assetPhoto').dispatchEvent(new Event('change'));
+  }
+});
+
+async function fetchAssets() {
+  try {
+    const r = await fetch(SHEETDB_API_URL);
+    const data = await r.json();
+    allAssets = Array.isArray(data) ? data : [];
+  } catch(e) {
+    allAssets = JSON.parse(localStorage.getItem('ayola_assets') || '[]');
+  }
+  localStorage.setItem('ayola_assets', JSON.stringify(allAssets));
+  updateStats();
+  renderTable(allAssets);
+}
+
+function updateStats() {
+  document.getElementById('s-total').textContent  = allAssets.length;
+  document.getElementById('s-ok').textContent     = allAssets.filter(a=>a.status==='Tersedia').length;
+  document.getElementById('s-used').textContent   = allAssets.filter(a=>a.status==='Dipakai').length;
+  document.getElementById('s-repair').textContent = allAssets.filter(a=>a.status==='Rusak/Servis').length;
+}
+
+function filterAssets() {
+  const q   = document.getElementById('searchAsset').value.toLowerCase();
+  const kat = document.getElementById('filterKat').value;
+  const filtered = allAssets.filter(a => {
+    const matchQ   = !q   || (a.nama_aset||'').toLowerCase().includes(q) || (a.lokasi||'').toLowerCase().includes(q) || (a.kode_aset||'').toLowerCase().includes(q);
+    const matchKat = !kat || a.kategori === kat;
+    return matchQ && matchKat;
+  });
+  renderTable(filtered);
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('assetTableBody');
+  const admin = isAdmin();
+
+  if (!data || !data.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">
+      <span class="material-symbols-rounded" style="display:block;font-size:36px;margin-bottom:8px;opacity:0.4">search_off</span>
+      Tidak ada data aset.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map((row, i) => {
+    const imgHtml = (row.foto && row.foto !== '')
+      ? `<img src="${row.foto}" class="asset-photo" onerror="this.style.display='none'">`
+      : `<div class="no-photo"><span class="material-symbols-rounded">image_not_supported</span></div>`;
+
+    let statusBadge = 'badge-green', statusLabel = row.status || 'Tersedia';
+    if (row.status === 'Rusak/Servis') statusBadge = 'badge-red';
+    if (row.status === 'Dipakai')      statusBadge = 'badge-amber';
+
+    const aksi = admin ? `
+      <button class="btn btn-sm btn-secondary" style="margin-right:4px" onclick="editAsset(${i})" title="Edit">
+        <span class="material-symbols-rounded" style="font-size:14px">edit</span>
+      </button>
+      <button class="btn btn-sm btn-danger-sm" onclick="deleteAsset('${row.nama_aset || row.kode_aset}')" title="Hapus">
+        <span class="material-symbols-rounded" style="font-size:14px">delete</span>
+      </button>`
+    : `<span style="font-size:0.76rem;color:var(--muted)">—</span>`;
+
+    return `<tr>
+      <td>${imgHtml}</td>
+      <td><code style="font-size:0.75rem;background:#f1f5f8;padding:3px 7px;border-radius:5px">${row.kode_aset || '–'}</code></td>
+      <td><strong style="font-size:0.875rem">${row.nama_aset || '–'}</strong></td>
+      <td><span class="badge badge-teal">${row.kategori || '–'}</span></td>
+      <td style="color:var(--muted);font-size:0.8rem">${row.serial || row.sn || '–'}</td>
+      <td><span class="badge ${statusBadge}">${statusLabel}</span></td>
+      <td style="font-size:0.855rem">${row.lokasi || '–'}</td>
+      <td>${aksi}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function handleFormSubmit(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btnSubmit');
+  btn.innerHTML = '<span class="material-symbols-rounded" style="font-size:15px;animation:spin 1s linear infinite">refresh</span> Menyimpan...';
+  btn.disabled = true;
+
+  const isEdit   = document.getElementById('assetId').value !== '';
+  const payload  = {
+    data: {
+      kode_aset: document.getElementById('assetKode').value,
+      nama_aset: document.getElementById('assetName').value,
+      kategori:  document.getElementById('assetCategory').value,
+      serial:    document.getElementById('assetSN').value,
+      status:    document.getElementById('assetStatus').value,
+      lokasi:    document.getElementById('assetLocation').value,
+      foto:      document.getElementById('photoBase64').value
+    }
+  };
+
+  try {
+    let response;
+    if (isEdit) {
+      const original = document.getElementById('assetId').value;
+      response = await fetch(`${SHEETDB_API_URL}/nama_aset/${encodeURIComponent(original)}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      response = await fetch(SHEETDB_API_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
     }
 
-    // Fungsi Tambah Aset
-    document.getElementById('assetForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const newAsset = {
-            id: `AST-${Date.now().toString().slice(-5)}`, // Bikin kode aset otomatis
-            kategori: document.getElementById('kategori').value,
-            merk: document.getElementById('merk').value,
-            serial: document.getElementById('serial').value,
-            pengguna: document.getElementById('pengguna').value,
-            status: document.getElementById('status').value
-        };
-
-        assets.unshift(newAsset); // Tambah ke urutan atas
-        saveToLocalStorage();     // Simpan ke memory browser
-        renderTable();            // Tampilkan di tabel
-        this.reset();             // Kosongkan form
-    });
-
-    // Fungsi Hapus Aset
-    window.hapusAset = function(index) {
-        if(confirm('Apakah Anda yakin ingin menghapus data aset ini?')) {
-            assets.splice(index, 1);
-            saveToLocalStorage();
-            renderTable();
-        }
-    };
-
-    // Fungsi Menampilkan Data ke Tabel
-    function renderTable() {
-        const list = document.getElementById('assetList');
-        list.innerHTML = assets.map((a, index) => {
-            const statusClass = `status-${a.status.split(' ')[0].toLowerCase()}`; // Ambil kata pertama untuk class warna
-            return `
-                <tr>
-                    <td><strong>${a.id}</strong></td>
-                    <td>${a.kategori}</td>
-                    <td>${a.merk}</td>
-                    <td>${a.serial}</td>
-                    <td>${a.pengguna}</td>
-                    <td><span class="badge ${statusClass}">${a.status}</span></td>
-                    <td><button class="btn-danger" onclick="hapusAset(${index})">Hapus</button></td>
-                </tr>
-            `;
-        }).join('');
+    // Optimistic update localStorage too
+    if (isEdit) {
+      const idx = allAssets.findIndex(a => a.nama_aset === document.getElementById('assetId').value);
+      if (idx !== -1) allAssets[idx] = { ...allAssets[idx], ...payload.data };
+    } else {
+      allAssets.unshift(payload.data);
     }
+    localStorage.setItem('ayola_assets', JSON.stringify(allAssets));
 
-    // Fungsi Export ke Excel
-    window.exportToExcel = function() {
-        if (assets.length === 0) {
-            alert("Belum ada data aset untuk diexport!");
-            return;
-        }
+    showToast(isEdit ? 'Aset berhasil diupdate!' : 'Aset berhasil ditambahkan!', 'ok');
+    closeModal();
+    await fetchAssets();
+  } catch(err) {
+    showToast('Gagal menyimpan. Cek koneksi.', 'err');
+  } finally {
+    btn.innerHTML = '<span class="material-symbols-rounded" style="font-size:16px">save</span> Simpan';
+    btn.disabled = false;
+  }
+}
 
-        let csvContent = "Kode Aset,Kategori,Merk & Tipe,Serial Number,Pengguna/Lokasi,Status\n";
-        
-        assets.forEach(a => {
-            // Menghindari error jika ada tanda koma pada input teks
-            let merk = `"${a.merk}"`;
-            let pengguna = `"${a.pengguna}"`;
-            csvContent += `${a.id},${a.kategori},${merk},${a.serial},${pengguna},${a.status}\n`;
-        });
+function editAsset(idx) {
+  const row = allAssets[idx];
+  openModal();
+  document.getElementById('modalTitle').textContent = 'Edit Data Aset';
+  document.getElementById('assetId').value         = row.nama_aset || '';
+  document.getElementById('assetKode').value       = row.kode_aset || '';
+  document.getElementById('assetName').value       = row.nama_aset || '';
+  document.getElementById('assetCategory').value   = row.kategori  || '';
+  document.getElementById('assetSN').value         = row.serial    || row.sn || '';
+  document.getElementById('assetStatus').value     = row.status    || 'Tersedia';
+  document.getElementById('assetLocation').value   = row.lokasi    || '';
+  document.getElementById('photoBase64').value     = row.foto      || '';
+  if (row.foto) {
+    document.getElementById('photoPreview').src     = row.foto;
+    document.getElementById('photoPreview').style.display = 'block';
+    document.getElementById('uploadIcon').style.display   = 'none';
+    document.getElementById('uploadText').textContent     = 'Foto tersimpan';
+    document.getElementById('uploadArea').classList.add('has-file');
+  }
+}
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", "laporan_aset_it.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+async function deleteAsset(nama) {
+  if (!confirm(`Hapus aset "${nama}"?`)) return;
+  try {
+    await fetch(`${SHEETDB_API_URL}/nama_aset/${encodeURIComponent(nama)}`, { method: 'DELETE' });
+    allAssets = allAssets.filter(a => a.nama_aset !== nama);
+    localStorage.setItem('ayola_assets', JSON.stringify(allAssets));
+    showToast('Aset dihapus.', 'ok');
+    updateStats();
+    renderTable(allAssets);
+  } catch(e) { showToast('Gagal menghapus.', 'err'); }
+}
 
-    // Tampilkan data saat halaman pertama kali dibuka
-    renderTable();
+function openModal() {
+  document.getElementById('assetModal').classList.add('active');
+  document.getElementById('modalTitle').textContent = 'Tambah Aset Baru';
+}
+function closeModal() {
+  document.getElementById('assetModal').classList.remove('active');
+  document.getElementById('assetForm').reset();
+  document.getElementById('assetId').value       = '';
+  document.getElementById('photoBase64').value   = '';
+  document.getElementById('photoPreview').style.display = 'none';
+  document.getElementById('uploadIcon').style.display   = '';
+  document.getElementById('uploadText').textContent     = 'Klik untuk upload foto aset';
+  document.getElementById('uploadArea').classList.remove('has-file');
+}
+
+window.onload = () => {
+  if (!authGuard()) return;
+  buildSidebar('aset');
+  // Hide aksi column for non-admin
+  if (!isAdmin()) {
+    document.getElementById('btnTambah').style.display = 'none';
+    document.getElementById('colAksi').style.display   = 'none';
+  }
+  fetchAssets();
+};
 </script>
-
+<style>
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
 </body>
 </html>
