@@ -95,7 +95,7 @@
 <div id="toast"></div>
 <script src="sidebar-builder.js"></script>
 <script>
-const API = "https://sheetdb.io/api/v1/uflcumfapg0oz";
+const API = "https://sheetdb.io/api/v1/blk7obm7z1uo2";
 let todos = JSON.parse(localStorage.getItem('ayola_todos_v2')) || [];
 let currentFilter = 'all';
 
@@ -107,6 +107,7 @@ async function loadTodos() {
     if (Array.isArray(ro) && ro.length) {
       todos = ro.map((i,idx) => ({
         id:   idx,
+        row_id: i.row_id || '',
         text: i.tugas || '-',
         pic:  i.pic   || '',
         prior: i.prioritas || 'normal',
@@ -121,8 +122,10 @@ async function loadTodos() {
 
 function addTodo(e) {
   e.preventDefault();
+  const newRowId = 'td_' + Date.now();
   const item = {
     id:   Date.now(),
+    row_id: newRowId,
     text: document.getElementById('td-text').value,
     pic:  document.getElementById('td-pic').value || (localStorage.getItem('namaUser')||''),
     prior: document.getElementById('td-prior').value,
@@ -134,25 +137,44 @@ function addTodo(e) {
   showToast('Tugas ditambahkan!', 'ok');
   fetch(API+'?sheet=todolist', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ data:[{ tugas:item.text, pic:item.pic, prioritas:item.prior, deadline:item.due, status:'Belum' }] })
+    body: JSON.stringify({ data:[{ row_id:newRowId, tugas:item.text, pic:item.pic, prioritas:item.prior, deadline:item.due, status:'Belum' }] })
   }).catch(()=>{});
 }
 
 function toggleTodo(id) {
   const t = todos.find(x => x.id === id);
-  if (t) { t.done = !t.done; save(); renderTodos(); }
+  if (t) {
+    t.done = !t.done;
+    save(); renderTodos();
+    if (t.row_id) {
+      fetch(`${API}/row_id/${encodeURIComponent(t.row_id)}?sheet=todolist`, {
+        method:'PATCH', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ data:{ status: t.done ? 'Selesai' : 'Belum' } })
+      }).catch(()=>{});
+    }
+  }
 }
 
 function deleteTodo(id) {
+  const t = todos.find(x => x.id === id);
   todos = todos.filter(x => x.id !== id);
   save(); renderTodos(); showToast('Tugas dihapus.', 'ok');
+  if (t && t.row_id) {
+    fetch(`${API}/row_id/${encodeURIComponent(t.row_id)}?sheet=todolist`, { method:'DELETE' }).catch(()=>{});
+  }
 }
 
 function clearDone() {
   if (!todos.filter(t=>t.done).length) return;
   if (!confirm('Hapus semua tugas yang sudah selesai?')) return;
+  const doneItems = todos.filter(t => t.done);
   todos = todos.filter(t => !t.done);
   save(); renderTodos(); showToast('Tugas selesai dihapus.', 'ok');
+  doneItems.forEach(t => {
+    if (t.row_id) {
+      fetch(`${API}/row_id/${encodeURIComponent(t.row_id)}?sheet=todolist`, { method:'DELETE' }).catch(()=>{});
+    }
+  });
 }
 
 function setFilter(f) {

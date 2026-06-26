@@ -55,6 +55,12 @@
         <input id="lPass" type="password" placeholder="••••••••" autocomplete="current-password">
       </div>
 
+      <div style="background:rgba(0,201,177,0.07);border:1px solid rgba(0,201,177,0.15);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:0.78rem;color:rgba(255,255,255,0.5)">
+        <div style="margin-bottom:4px;color:rgba(255,255,255,0.35);font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:0.65rem">Demo Akun</div>
+        <div>Admin: <span style="color:var(--teal)">admin</span> / <span style="color:var(--teal)">admin123</span></div>
+        <div>User: <span style="color:var(--amber)">user</span> / <span style="color:var(--amber)">user123</span></div>
+      </div>
+
       <button class="login-btn" onclick="doLogin()">
         <span class="material-symbols-rounded" style="font-size:16px;vertical-align:middle;margin-right:6px">login</span>
         Masuk ke Portal
@@ -73,11 +79,11 @@ function setRole(role, btn) {
   btn.classList.add('active');
 }
 
-const API = "https://sheetdb.io/api/v1/uflcumfapg0oz";
+const API = "https://sheetdb.io/api/v1/blk7obm7z1uo2";
 
 // Built-in accounts: admin & user (for demo / fallback)
 const LOCAL_ACCOUNTS = [
-  { username: 'admin', password: 'adminayola', nama: 'Administrator', role: 'admin' },
+  { username: 'admin', password: 'admin123', nama: 'Administrator', role: 'admin' },
   { username: 'it',    password: 'ayola2024', nama: 'IT Supervisor',  role: 'admin' },
   { username: 'user',  password: 'user123',  nama: 'Staff IT',        role: 'user'  },
   { username: 'staff', password: 'staff123', nama: 'Staff Umum',      role: 'user'  },

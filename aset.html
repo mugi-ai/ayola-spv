@@ -154,7 +154,8 @@
 <div id="toast"></div>
 <script src="sidebar-builder.js"></script>
 <script>
-const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/9z6fip68xxtcl';
+const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/blk7obm7z1uo2';
+const ASSETS_SHEET = 'assets';
 let allAssets = [];
 
 // Photo upload handler
@@ -192,7 +193,7 @@ uploadArea.addEventListener('drop', e => {
 
 async function fetchAssets() {
   try {
-    const r = await fetch(SHEETDB_API_URL);
+    const r = await fetch(SHEETDB_API_URL + '?sheet=' + ASSETS_SHEET);
     const data = await r.json();
     allAssets = Array.isArray(data) ? data : [];
   } catch(e) {
@@ -286,12 +287,12 @@ async function handleFormSubmit(e) {
     let response;
     if (isEdit) {
       const original = document.getElementById('assetId').value;
-      response = await fetch(`${SHEETDB_API_URL}/nama_aset/${encodeURIComponent(original)}`, {
+      response = await fetch(`${SHEETDB_API_URL}/nama_aset/${encodeURIComponent(original)}?sheet=${ASSETS_SHEET}`, {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
     } else {
-      response = await fetch(SHEETDB_API_URL, {
+      response = await fetch(SHEETDB_API_URL + '?sheet=' + ASSETS_SHEET, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
@@ -341,7 +342,7 @@ function editAsset(idx) {
 async function deleteAsset(nama) {
   if (!confirm(`Hapus aset "${nama}"?`)) return;
   try {
-    await fetch(`${SHEETDB_API_URL}/nama_aset/${encodeURIComponent(nama)}`, { method: 'DELETE' });
+    await fetch(`${SHEETDB_API_URL}/nama_aset/${encodeURIComponent(nama)}?sheet=${ASSETS_SHEET}`, { method: 'DELETE' });
     allAssets = allAssets.filter(a => a.nama_aset !== nama);
     localStorage.setItem('ayola_assets', JSON.stringify(allAssets));
     showToast('Aset dihapus.', 'ok');

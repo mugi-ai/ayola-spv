@@ -129,7 +129,7 @@
 <div id="toast"></div>
 <script src="sidebar-builder.js"></script>
 <script>
-const API = "https://sheetdb.io/api/v1/uflcumfapg0oz";
+const API = "https://sheetdb.io/api/v1/blk7obm7z1uo2";
 let tickets = JSON.parse(localStorage.getItem('ayola_tickets')) || [
   { id:'TKT-001', lapor:'Budi Santoso', dept:'Engineering', judul:'Printer lantai 2 error', prior:'Sedang', status:'Open', desc:'', note:'' }
 ];
@@ -143,6 +143,7 @@ async function loadTickets() {
     if (Array.isArray(rt) && rt.length) {
       tickets = rt.map((i,idx) => ({
         id:    `TKT-${String(idx+1).padStart(3,'0')}`,
+        ticket_id: i.ticket_id || '',
         lapor: i.pelapor || '-',
         dept:  i.departemen || 'General',
         judul: i.masalah || '-',
@@ -159,8 +160,10 @@ async function loadTickets() {
 
 function submitTiket(e) {
   e.preventDefault();
+  const newId = 'tkt_' + Date.now();
   const item = {
     id:     'TKT-' + String(tickets.length + 1).padStart(3,'0'),
+    ticket_id: newId,
     lapor:  document.getElementById('t-lapor').value,
     dept:   document.getElementById('t-dept').value,
     judul:  document.getElementById('t-judul').value,
@@ -177,7 +180,7 @@ function submitTiket(e) {
   showToast('Tiket berhasil dikirim!', 'ok');
   fetch(API+'?sheet=tickets', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ data:[{ pelapor:item.lapor, departemen:item.dept, masalah:item.judul, prioritas:item.prior, deskripsi:item.desc, status_tiket:'Open', catatan:'' }] })
+    body: JSON.stringify({ data:[{ ticket_id:newId, pelapor:item.lapor, departemen:item.dept, masalah:item.judul, prioritas:item.prior, deskripsi:item.desc, status_tiket:'Open', catatan:'' }] })
   }).catch(()=>{});
 }
 
@@ -213,12 +216,22 @@ const stMap = { Open:'badge-blue', 'In Progress':'badge-amber', Closed:'badge-gr
 
 function updateTiket() {
   if (editIdx < 0) return;
-  tickets[editIdx].status = document.getElementById('dm-status').value;
-  tickets[editIdx].note   = document.getElementById('dm-note').value;
+  const newStatus = document.getElementById('dm-status').value;
+  const newNote   = document.getElementById('dm-note').value;
+  tickets[editIdx].status = newStatus;
+  tickets[editIdx].note   = newNote;
   save();
   renderTiket();
   closeDetail();
   showToast('Status tiket diperbarui!', 'ok');
+
+  const tid = tickets[editIdx].ticket_id;
+  if (tid) {
+    fetch(`${API}/ticket_id/${encodeURIComponent(tid)}?sheet=tickets`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ data:{ status_tiket:newStatus, catatan:newNote } })
+    }).catch(()=>{});
+  }
 }
 
 function closeDetail() {
@@ -268,6 +281,13 @@ function renderTiket() {
 function quickClose(idx) {
   tickets[idx].status = 'Closed';
   save(); renderTiket(); showToast('Tiket ditutup!', 'ok');
+  const tid = tickets[idx].ticket_id;
+  if (tid) {
+    fetch(`${API}/ticket_id/${encodeURIComponent(tid)}?sheet=tickets`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ data:{ status_tiket:'Closed' } })
+    }).catch(()=>{});
+  }
 }
 
 window.onload = () => {

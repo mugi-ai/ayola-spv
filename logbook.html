@@ -104,7 +104,7 @@
 <div id="toast"></div>
 <script src="sidebar-builder.js"></script>
 <script>
-const API = "https://sheetdb.io/api/v1/uflcumfapg0oz";
+const API = "https://sheetdb.io/api/v1/blk7obm7z1uo2";
 let logs = JSON.parse(localStorage.getItem('ayola_logs')) || [];
 
 const catColors = {
@@ -138,6 +138,7 @@ async function loadLogs() {
     if (Array.isArray(rl) && rl.length) {
       logs = rl.map((i,idx) => ({
         id:     idx+1,
+        row_id: i.row_id || '',
         tgl:    i.tanggal || '',
         time:   i.waktu   || '',
         kat:    i.kategori|| 'Lainnya',
@@ -153,8 +154,10 @@ async function loadLogs() {
 
 function submitLog(e) {
   e.preventDefault();
+  const newRowId = 'log_' + Date.now();
   const item = {
     id:    Date.now(),
+    row_id: newRowId,
     tgl:   document.getElementById('l-tgl').value,
     time:  document.getElementById('l-time').value,
     kat:   document.getElementById('l-kat').value,
@@ -171,15 +174,19 @@ function submitLog(e) {
   showToast('Log aktivitas dicatat!', 'ok');
   fetch(API+'?sheet=logbook', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ data:[{ tanggal:item.tgl, waktu:item.time, kategori:item.kat, teknisi:item.tech, judul:item.judul, deskripsi:item.desc }] })
+    body: JSON.stringify({ data:[{ row_id:newRowId, tanggal:item.tgl, waktu:item.time, kategori:item.kat, teknisi:item.tech, judul:item.judul, deskripsi:item.desc }] })
   }).catch(()=>{});
 }
 
 function deleteLog(id) {
   if (!isAdmin()) { showToast('Hanya admin yang bisa menghapus log.', 'err'); return; }
   if (!confirm('Hapus log ini?')) return;
+  const l = logs.find(x => x.id === id);
   logs = logs.filter(l => l.id !== id);
   save(); renderLogs(); showToast('Log dihapus.', 'ok');
+  if (l && l.row_id) {
+    fetch(`${API}/row_id/${encodeURIComponent(l.row_id)}?sheet=logbook`, { method:'DELETE' }).catch(()=>{});
+  }
 }
 
 function renderLogs() {
